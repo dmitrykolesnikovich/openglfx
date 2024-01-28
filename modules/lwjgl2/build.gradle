@@ -21,6 +21,8 @@ dependencies {
     implementation project(':modules:core')
 
     compileOnly "org.lwjgl.lwjgl:lwjgl:${project["version.lwjgl2"]}"
+
+    implementation files("${project.projectDir}/include/javafx.graphics.win-es2.jar")
 }
 
 tasks.register('runLWJGL2', JavaExec) {
@@ -53,4 +55,28 @@ tasks.register('runLWJGL2_ES2', JavaExec) {
     classpath = sourceSets.examples.runtimeClasspath
     mainClass = "LWJGL2_ES2Kt"
     jvmArgs project["opens"].split()
+}
+
+task fatJarSW(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'LWJGL2_SWKt'
+    }
+    archiveBaseName = 'SW'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { sourceSets.examples.runtimeClasspath.filter { file -> file.exists() }.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task fatJarES(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'LWJGL2_ES2Kt'
+    }
+    archiveBaseName = 'ES'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { sourceSets.examples.runtimeClasspath.filter { file -> file.exists() }.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+tasks.withType(Copy) {
+    duplicatesStrategy = 'exclude'
 }
